@@ -26,15 +26,6 @@ To run this project, you need to have Python installed. You can install the requ
 pip install -r requirements.txt
 ```
 
-The `requirements.txt` file should contain:
-
-```
-streamlit
-numpy
-matplotlib
-pillow
-```
-
 ## Usage
 
 To run the Streamlit app, use the following command:
