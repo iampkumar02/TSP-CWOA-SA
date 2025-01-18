@@ -3,93 +3,14 @@ import numpy as np
 import matplotlib.pyplot as plt
 import io
 
-# -- Optional: Remove or comment out if you prefer the default Streamlit page layout --
-# st.set_page_config(layout="wide")
+# Load the console styles
+def load_css(css_file):
+    with open(css_file) as f:
+        st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
 
-# -- 1) Inject custom CSS for centered header and centered log text (no copy button) --
-import streamlit as st
-import numpy as np
-import matplotlib.pyplot as plt
-import io
-
-# ... (keep existing imports and setup code)
-
-# Update the CSS styles
-st.markdown(
-    """
-    <style>
-    .log-container {
-        border: 1px solid #3c3c3c;
-        border-radius: 0.5rem;
-        margin-bottom: 1rem;
-        font-family: "Fira Code", monospace;
-        width: 100%;
-    }
-
-    .log-header {
-        background-color: #333;
-        color: #fff;
-        padding: 0.5rem;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        border-bottom: 1px solid #3c3c3c;
-        border-top-left-radius: 0.5rem;
-        border-top-right-radius: 0.5rem;
-        font-weight: bold;
-    }
-
-    .scrollable-log-box {
-        background-color: #1e1e1e;
-        color: #d4d4d4;
-        padding: 1rem;
-        height: 300px;
-        overflow-y: auto;
-        border-bottom-left-radius: 0.5rem;
-        border-bottom-right-radius: 0.5rem;
-        scroll-behavior: smooth;  /* Add smooth scrolling */
-    }
-
-    .log-content {
-        display: flex;
-        flex-direction: column;
-    }
-
-    .log-line {
-        padding: 4px;
-        margin-bottom: 4px;
-        font-size: 14px;
-        line-height: 1.4;
-    }
-
-    .log-line.highlight {
-        background-color: #2d5a27;
-        color: #ffffff;
-        border-radius: 4px;
-        padding: 8px;
-        margin: 4px 0;
-        border-left: 4px solid #4CAF50;
-        animation: fadeIn 0.5s ease-in;
-    }
-
-    @keyframes fadeIn {
-        from { opacity: 0.6; }
-        to { opacity: 1; }
-    }
-
-    .distance-value {
-        font-weight: bold;
-        color: #4CAF50;
-    }
-    </style>
-    """,
-    unsafe_allow_html=True,
-)
+load_css('styles/console.css')
 
 def build_logs_html(logs):
-    """
-    Build HTML for the logs with enhanced highlighting and formatting.
-    """
     lines_html = []
     for i, log in enumerate(logs):
         if "Current Distance =" in log:
@@ -117,7 +38,7 @@ def build_logs_html(logs):
 
 def create_log_box(logs):
     """
-    Renders the log messages in a styled, scrollable container with enhanced auto-scrolling.
+    Renders the log messages in a styled, scrollable container.
     """
     logs_html = build_logs_html(logs)
 
@@ -135,34 +56,27 @@ def create_log_box(logs):
             var logBox = document.getElementById('log-box');
             var shouldScroll = true;
             
-            // Check if user is actively scrolling/viewing older logs
             logBox.onscroll = function() {{
                 var distanceFromBottom = logBox.scrollHeight - logBox.scrollTop - logBox.clientHeight;
                 shouldScroll = distanceFromBottom < 50;
             }};
             
-            // Auto-scroll if we should
             if (shouldScroll) {{
                 logBox.scrollTop = logBox.scrollHeight;
             }}
         }}
 
-        // Initial scroll
         scrollToBottom();
         
-        // Set up a mutation observer to watch for changes and scroll accordingly
         var observer = new MutationObserver(function(mutations) {{
             scrollToBottom();
         }});
 
-        // Start observing the log box for changes
         var logBox = document.getElementById('log-box');
         observer.observe(logBox, {{ childList: true, subtree: true }});
         
-        // Also scroll after a short delay to ensure all content is loaded
         setTimeout(scrollToBottom, 100);
         
-        // Keep checking for a few seconds to ensure scrolling works
         let scrollAttempts = 0;
         const scrollInterval = setInterval(function() {{
             scrollToBottom();
@@ -231,14 +145,11 @@ if st.button("Solve TSP"):
         cities, initial_temp, cooling_rate, num_iterations
     )
 
-    # Placeholders in the Streamlit app
     animation_placeholder = st.empty()
     log_placeholder = st.empty()
 
-    # We'll store all log lines in this list
     logs = []
 
-    # Prepare figure for iterative updates
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 6))
     fig.suptitle("Traveling Salesman Problem - Simulated Annealing")
 
@@ -287,8 +198,7 @@ if st.button("Solve TSP"):
         
         log_box_html = create_log_box(logs)
         log_placeholder.markdown(log_box_html, unsafe_allow_html=True)
-    plt.close(fig)  # Close the figure to free memory
+    plt.close(fig)
 
-    # Finally, show the best distance found
     st.write(f"**Best distance found**: {best_dist:.2f}")
     st.success("Done!")
