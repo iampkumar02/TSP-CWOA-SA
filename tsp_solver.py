@@ -38,7 +38,7 @@ def build_logs_html(logs):
 
 def create_log_box(logs):
     """
-    Renders the log messages in a styled, scrollable container.
+    This version keeps the view at the top, showing oldest logs first
     """
     logs_html = build_logs_html(logs)
 
@@ -46,43 +46,35 @@ def create_log_box(logs):
     <div class="log-container">
         <div class="log-header">Logs</div>
         <div class="scrollable-log-box" id="log-box">
-            <div class="log-content">
+            <div class="log-content" style="display: flex; flex-direction: column-reverse;">
                 {logs_html}
             </div>
         </div>
     </div>
     <script>
-        function scrollToBottom() {{
-            var logBox = document.getElementById('log-box');
-            var shouldScroll = true;
+        (function() {{
+            const logBox = document.getElementById('log-box');
             
-            logBox.onscroll = function() {{
-                var distanceFromBottom = logBox.scrollHeight - logBox.scrollTop - logBox.clientHeight;
-                shouldScroll = distanceFromBottom < 50;
-            }};
-            
-            if (shouldScroll) {{
-                logBox.scrollTop = logBox.scrollHeight;
+            // Keep scroll at top
+            function keepAtTop() {{
+                if (logBox) {{
+                    logBox.scrollTop = 0;
+                }}
             }}
-        }}
 
-        scrollToBottom();
-        
-        var observer = new MutationObserver(function(mutations) {{
-            scrollToBottom();
-        }});
+            // Handle content changes
+            const observer = new MutationObserver(() => {{
+                keepAtTop();
+            }});
 
-        var logBox = document.getElementById('log-box');
-        observer.observe(logBox, {{ childList: true, subtree: true }});
-        
-        setTimeout(scrollToBottom, 100);
-        
-        let scrollAttempts = 0;
-        const scrollInterval = setInterval(function() {{
-            scrollToBottom();
-            scrollAttempts++;
-            if (scrollAttempts >= 10) clearInterval(scrollInterval);
-        }}, 200);
+            observer.observe(logBox, {{ 
+                childList: true, 
+                subtree: true 
+            }});
+
+            // Initial position
+            keepAtTop();
+        }})();
     </script>
     """
     return log_box_html
